@@ -15,6 +15,8 @@
 
 <button id="clickBtn" onclick="sendClick()" disabled>Click Me</button>
 
+<button id="resetBtn" onclick="sendReset()" disabled>Reset Counter</button>
+
 <button onclick="connect()">Retry Connection</button>
 
 <script>
@@ -30,12 +32,13 @@ function connect() {
     setStatus("Connecting...")
     document.getElementById("clickBtn").disabled = true
 
-    ws = new WebSocket("wss://clickcounterserver.onrender.com")
+    ws = new WebSocket("wss://dt468staticwebsite.onrender.com")
 
     ws.onopen = () => {
-        setStatus("Connected")
-        document.getElementById("clickBtn").disabled = false
-    }
+    setStatus("Connected");
+    document.getElementById("clickBtn").disabled = false;
+    document.getElementById("resetBtn").disabled = false;
+}
 
     ws.onmessage = (event) => {
         const msg = JSON.parse(event.data)
@@ -53,6 +56,7 @@ function connect() {
     ws.onclose = () => {
         setStatus("Disconnected (server may be sleeping)")
         document.getElementById("clickBtn").disabled = true
+        document.getElementById("resetBtn").disabled = true;
     }
 }
 
@@ -66,6 +70,14 @@ function sendClick() {
     ws.send(JSON.stringify({
         type: "click"
     }))
+}
+
+function sendReset() {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+    ws.send(JSON.stringify({
+        type: "reset"
+    }));
 }
 
 connect()
